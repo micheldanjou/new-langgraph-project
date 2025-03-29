@@ -170,3 +170,6 @@ uv.lock
 .vscode/
 .vscode/*
 !.vscode/extensions.json
+
+# Database
+src/agent/data/*.db

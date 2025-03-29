@@ -1,6 +1,7 @@
-"""Define a simple chatbot agent using OpenAI."""
+"""Define a simple chatbot agent using OpenAI with database access."""
 
 from typing import Any, Dict
+import re
 
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
@@ -9,13 +10,34 @@ from langgraph.graph import StateGraph
 
 from agent.configuration import Configuration
 from agent.state import State
+from agent.database import db_manager
 
+def extract_sql_query(text: str) -> str:
+    """Extract SQL query from text using regex."""
+    sql_match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL)
+    if sql_match:
+        return sql_match.group(1).strip()
+    return ""
 
 async def chat_with_openai(state: State, config: RunnableConfig) -> Dict[str, Any]:
     """Process the user input with OpenAI's chat model."""
     configuration = Configuration.from_runnable_config(config)
     
-    # Initialize the chat model
+    # Check if the user is asking for database information
+    if "database" in state.current_message.lower() or "users" in state.current_message.lower():
+        # Get all users from database
+        db_results = db_manager.get_all_users()
+        response_text = f"Here are the users from the database:\n{db_results}"
+        
+        # Update state with the new message
+        new_messages = state.messages + [
+            {"role": "user", "content": state.current_message},
+            {"role": "assistant", "content": response_text}
+        ]
+        
+        return {"messages": new_messages}
+    
+    # Initialize the chat model for non-database queries
     chat = ChatOpenAI(
         model=configuration.model_name,
         temperature=configuration.temperature
@@ -45,7 +67,6 @@ async def chat_with_openai(state: State, config: RunnableConfig) -> Dict[str, An
     
     return {"messages": new_messages}
 
-
 # Define a new graph
 workflow = StateGraph(State, config_schema=Configuration)
 
@@ -60,4 +81,4 @@ workflow.set_finish_point("chat")
 
 # Compile the workflow into an executable graph
 graph = workflow.compile()
-graph.name = "OpenAI Chat Graph"
+graph.name = "OpenAI Chat Graph with Database"

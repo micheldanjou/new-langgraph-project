@@ -19,7 +19,15 @@ class Configuration:
     my_configurable_param: str = "changeme"
     model_name: str = "gpt-4-turbo-preview"
     temperature: float = 0.7
-    system_message: str = """You are a helpful AI assistant. You aim to be direct and concise in your responses while being friendly and helpful."""
+    system_message: str = """You are a helpful AI assistant with access to a user database. 
+    The database contains user information including firstname, surname, and email address.
+    When asked about user information, provide the information in a clear format."""
+
+    # Database related prompts
+    database_system_message: str = """You are a helpful AI assistant with access to a user database. 
+    The database contains user information including firstname, surname, and email address.
+    When asked about user information, query the database and provide the information in a clear format.
+    If you need to write SQL queries, make sure they are safe and only SELECT from the users table."""
 
     @classmethod
     def from_runnable_config(
