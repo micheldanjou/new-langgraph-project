@@ -17,6 +17,9 @@ class Configuration:
     # create assistants (https://langchain-ai.github.io/langgraph/cloud/how-tos/configuration_cloud/)
     # and when you invoke the graph
     my_configurable_param: str = "changeme"
+    model_name: str = "gpt-4-turbo-preview"
+    temperature: float = 0.7
+    system_message: str = """You are a helpful AI assistant. You aim to be direct and concise in your responses while being friendly and helpful."""
 
     @classmethod
     def from_runnable_config(
