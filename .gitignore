@@ -165,3 +165,8 @@ uv.lock
 # LangGraph
 .langgraph_api/
 .langgraph_api
+
+# VS Code
+.vscode/
+.vscode/*
+!.vscode/extensions.json
